@@ -260,7 +260,7 @@ createTestCase(
 createTestCase(
   "Adding multiple ranges to a selection",
   [],
-  "One, two, buckle my shoe",
+  "One, two, buckle my shoe.",
   [
     {
       title: `Select "One" and "two"`,
