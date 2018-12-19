@@ -10,6 +10,9 @@ document.getElementById("app").innerHTML = `
 <div id="cases"></div>
 `;
 
+const htmlEncode = s =>
+  s.replace(/[\u00A0-\u9999<>\&]/gim, c => "&#" + c.charCodeAt(0) + ";");
+
 const makeRange = (
   startNode,
   startOffset,
@@ -72,7 +75,16 @@ const createTestCase = (
   const toolbarNode = node.querySelector(".toolbar");
   const logNode = node.querySelector(".log");
 
-  tests.forEach(test => (testsNode.innerHTML += `<li>${test}</li>`));
+  tests.forEach(test => {
+    let testText = test;
+    actions.forEach(({ title }, idx) => {
+      testText = testText.replace(
+        "$ACTION_" + (idx + 1),
+        `<code>${htmlEncode(title)}</code>`
+      );
+    });
+    testsNode.innerHTML += `<li>${testText}</li>`;
+  });
 
   actions.forEach(({ title, callback }) => {
     const buttonNode = document.createElement("input");
@@ -111,7 +123,7 @@ const createTestCase = (
 createTestCase(
   "Multi-byte characters",
   [
-    "Click the button to move the caret in the middle of this 2 byte character.",
+    "Click $ACTION_1 to move the caret in the middle of this 2 byte character.",
     "When at offset 1, type to see where the character is inserted."
   ],
   "🌹",
@@ -128,10 +140,10 @@ createTestCase(
 createTestCase(
   "Caret movement in wrapper nodes",
   [
-    "Click <code>Move before A</code>. Hit <code>→</code>. Then type <code>x</code>.",
-    "Click <code>Move between B and C</code>. Hit <code>←</code>. Then type <code>x</code>.",
-    "Click <code>Move between B and C</code>. Hit <code>→</code>. Then type <code>x</code>.",
-    "Click <code>Move after D</code>. Hit <code>←</code>. Then type <code>x</code>."
+    "Click $ACTION_1. Hit <code>→</code>. Then type <code>x</code>.",
+    "Click $ACTION_2. Hit <code>←</code>. Then type <code>x</code>.",
+    "Click $ACTION_2. Hit <code>→</code>. Then type <code>x</code>.",
+    "Click $ACTION_3. Hit <code>←</code>. Then type <code>x</code>."
   ],
   "A<b>BC</b>D",
   [
@@ -159,7 +171,7 @@ createTestCase(
 createTestCase(
   "Line wrapping",
   [
-    "Click <code>Move after to L</code> to move the caret to the end of the first line. Note whether the caret ends up on the first or the second line"
+    "Click $ACTION_1 to move the caret to the end of the first line. Note whether the caret ends up on the first or the second line"
   ],
   "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
   [
@@ -177,7 +189,9 @@ createTestCase(
 
 createTestCase(
   "Using <code>Range</code> with non-text nodes",
-  [],
+  [
+    "Click $ACTION_1, $ACTION_2, $ACTION_3 or $ACTION_4 to move the caret using the editor div."
+  ],
   "A<control contenteditable='false'>Control</control>B",
   [0, 1, 2, 3].map(offset => ({
     title: `Move to offset ${offset}`,
@@ -188,11 +202,11 @@ createTestCase(
 );
 
 createTestCase(
-  "Positioning around <code>&lt;br/&gt;</code> tags",
+  `Positioning around <code>${htmlEncode("<br>")}</code> tags`,
   [
-    "Click <code>Move to offset 1</code> to move before the first <code>BR</code> tag",
-    "Click <code>Move to offset 2</code> to move between two <code>BR</code> tags",
-    "Click <code>Move to offset 3</code> to move after the second <code>BR</code> tag"
+    "Click $ACTION_1 to move before the first <code>BR</code> tag",
+    "Click $ACTION_2 to move between two <code>BR</code> tags",
+    "Click $ACTION_3 to move after the second <code>BR</code> tag"
   ],
   "A<br/><br/>B",
   [1, 2, 3].map(offset => ({
@@ -203,30 +217,43 @@ createTestCase(
   }))
 );
 
-createTestCase("Positioning around formatting tags", [], "<b><i>A</i></b>", [
-  {
-    title: `Move before <b>`,
-    callback: editorNode => {
-      moveCaret(editorNode, 0);
+createTestCase(
+  "Positioning around formatting tags",
+  [
+    "Click $ACTION_1. Then type <code>x</code>",
+    "Click $ACTION_2. Then type <code>x</code>",
+    "Click $ACTION_3. Then type <code>x</code>"
+  ],
+  "<b><i>A</i></b>",
+  [
+    {
+      title: `Move before <b>`,
+      callback: editorNode => {
+        moveCaret(editorNode, 0);
+      }
+    },
+    {
+      title: `Move after <b> but before <i>`,
+      callback: editorNode => {
+        moveCaret(editorNode.querySelector("b"), 0);
+      }
+    },
+    {
+      title: `Move after <i>`,
+      callback: editorNode => {
+        moveCaret(editorNode.querySelector("i"), 0);
+      }
     }
-  },
-  {
-    title: `Move after <b> but before <i>`,
-    callback: editorNode => {
-      moveCaret(editorNode.querySelector("b"), 0);
-    }
-  },
-  {
-    title: `Move after <i>`,
-    callback: editorNode => {
-      moveCaret(editorNode.querySelector("i"), 0);
-    }
-  }
-]);
+  ]
+);
 
 createTestCase(
   "Positioning around link tags",
-  [],
+  [
+    "Click $ACTION_1. Then type <code>x</code>",
+    "Click $ACTION_2. Then type <code>x</code>",
+    "Click $ACTION_3. Then type <code>x</code>"
+  ],
   "<a href='//example.com'>A</a>",
   [
     {
@@ -259,7 +286,10 @@ createTestCase(
 
 createTestCase(
   "Adding multiple ranges to a selection",
-  [],
+  [
+    "Click $ACTION_1 to select two non-contiguous ranges",
+    "Click $ACTION_2 to select two contiguous ranges"
+  ],
   "One, two, buckle my shoe.",
   [
     {
