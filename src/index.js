@@ -344,7 +344,7 @@ createTestCase(
   [
     "Click the buttons to see the returned caret bounds when the range is positioned at various places."
   ],
-  "A<control contenteditable='false'>Control</control>",
+  "A<control contenteditable='false'>Control</control><br/>B",
   [
     {
       title: `Before "A"`,
@@ -369,6 +369,10 @@ createTestCase(
     {
       title: `Select "A"`,
       callback: editorNode => moveCaret(editorNode, 0, editorNode, 1)
+    },
+    {
+      title: `Select "<br/>"`,
+      callback: editorNode => moveCaret(editorNode, 2, editorNode, 3)
     }
   ],
   null,
