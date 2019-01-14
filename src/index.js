@@ -25,10 +25,10 @@ const makeRange = (
   return range;
 };
 
-const moveCaret = (node, offset) => {
+const moveCaret = (startNode, startOffset, endNode, endOffset) => {
   const selection = window.getSelection();
   selection.removeAllRanges();
-  selection.addRange(makeRange(node, offset));
+  selection.addRange(makeRange(startNode, startOffset, endNode, endOffset));
 };
 
 const printNode = node => {
@@ -46,6 +46,16 @@ const printRange = range =>
   `Start: ${printNode(range.startContainer)}:${range.startOffset}<br/>` +
   `End: ${printNode(range.endContainer)}:${range.endOffset}<br/>`;
 
+const printRangeBounds = range => {
+  const { left, right, top, bottom } = range.getBoundingClientRect();
+  return [
+    `Left: ${left}`,
+    `Right: ${right}`,
+    `Top: ${top}`,
+    `Bottom: ${bottom}`
+  ].join("<br/>");
+};
+
 const casesNode = document.getElementById("cases");
 
 let numCases = 0;
@@ -55,7 +65,7 @@ const createTestCase = (
   content,
   actions = [],
   callback = undefined,
-  logSelection = false
+  logRangeBounds = false
 ) => {
   numCases++;
   const node = document.createElement("section");
@@ -113,6 +123,12 @@ const createTestCase = (
       ranges.push(range);
     }
     logNode.innerHTML = ranges.map(printRange).join("");
+
+    console.log(logRangeBounds);
+    if (logRangeBounds) {
+      logNode.innerHTML += "<br/>";
+      logNode.innerHTML += ranges.map(printRangeBounds).join("");
+    }
   });
 
   if (callback) {
@@ -313,4 +329,36 @@ createTestCase(
       }
     }
   ]
+);
+
+createTestCase(
+  "Getting caret bounds",
+  [
+    "Click the buttons to see the returned caret bounds when the range is positioned at various places."
+  ],
+  "A<control contenteditable='false'>Control</control>",
+  [
+    {
+      title: `Before "A"`,
+      callback: (editorNode, log) => moveCaret(editorNode, 0)
+    },
+    {
+      title: `Within "A"`,
+      callback: (editorNode, log) => moveCaret(editorNode.firstChild, 0)
+    },
+    {
+      title: `Before Control`,
+      callback: (editorNode, log) => moveCaret(editorNode, 1)
+    },
+    {
+      title: `After Control`,
+      callback: (editorNode, log) => moveCaret(editorNode, 2)
+    },
+    {
+      title: `Select Control`,
+      callback: (editorNode, log) => moveCaret(editorNode, 1, editorNode, 2)
+    }
+  ],
+  null,
+  true // logRangeBounds
 );
