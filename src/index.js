@@ -348,23 +348,27 @@ createTestCase(
   [
     {
       title: `Before "A"`,
-      callback: (editorNode, log) => moveCaret(editorNode, 0)
-    },
-    {
-      title: `Within "A"`,
-      callback: (editorNode, log) => moveCaret(editorNode.firstChild, 0)
+      callback: editorNode => moveCaret(editorNode, 0)
     },
     {
       title: `Before Control`,
-      callback: (editorNode, log) => moveCaret(editorNode, 1)
+      callback: editorNode => moveCaret(editorNode, 1)
     },
     {
       title: `After Control`,
-      callback: (editorNode, log) => moveCaret(editorNode, 2)
+      callback: editorNode => moveCaret(editorNode, 2)
     },
     {
       title: `Select Control`,
-      callback: (editorNode, log) => moveCaret(editorNode, 1, editorNode, 2)
+      callback: editorNode => moveCaret(editorNode, 1, editorNode, 2)
+    },
+    {
+      title: `Within "A"`,
+      callback: editorNode => moveCaret(editorNode.firstChild, 0)
+    },
+    {
+      title: `Select "A"`,
+      callback: editorNode => moveCaret(editorNode, 0, editorNode, 1)
     }
   ],
   null,
