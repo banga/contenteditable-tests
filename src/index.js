@@ -47,12 +47,21 @@ const printRange = range =>
   `End: ${printNode(range.endContainer)}:${range.endOffset}<br/>`;
 
 const printRangeBounds = range => {
-  const { left, right, top, bottom } = range.getBoundingClientRect();
+  const {
+    left,
+    right,
+    top,
+    bottom,
+    width,
+    height
+  } = range.getBoundingClientRect();
   return [
     `Left: ${left}`,
     `Right: ${right}`,
     `Top: ${top}`,
-    `Bottom: ${bottom}`
+    `Bottom: ${bottom}`,
+    `Width: ${width}`,
+    `Height: ${height}`
   ].join("<br/>");
 };
 
