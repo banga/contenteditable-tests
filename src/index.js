@@ -124,7 +124,6 @@ const createTestCase = (
     }
     logNode.innerHTML = ranges.map(printRange).join("");
 
-    console.log(logRangeBounds);
     if (logRangeBounds) {
       logNode.innerHTML += "<br/>";
       logNode.innerHTML += ranges.map(printRangeBounds).join("");
