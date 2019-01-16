@@ -47,22 +47,24 @@ const printRange = range =>
   `End: ${printNode(range.endContainer)}:${range.endOffset}<br/>`;
 
 const printRangeBounds = range => {
-  const {
-    left,
-    right,
-    top,
-    bottom,
-    width,
-    height
-  } = range.getBoundingClientRect();
-  return [
-    `Left: ${left}`,
-    `Right: ${right}`,
-    `Top: ${top}`,
-    `Bottom: ${bottom}`,
-    `Width: ${width}`,
-    `Height: ${height}`
-  ].join("<br/>");
+  const rects = [range.getBoundingClientRect()].concat(
+    Array.from(range.getClientRects())
+  );
+  return rects
+    .map(({ left, right, top, bottom, width, height }, idx) =>
+      [
+        idx === 0
+          ? `<b>getBoundingClientRect</b>`
+          : `<b>getClientRects ${idx}</b>`,
+        `Left: ${left}`,
+        `Right: ${right}`,
+        `Top: ${top}`,
+        `Bottom: ${bottom}`,
+        `Width: ${width}`,
+        `Height: ${height}`
+      ].join("<br/>")
+    )
+    .join("<br/><br/>");
 };
 
 const casesNode = document.getElementById("cases");
@@ -351,6 +353,14 @@ createTestCase(
       callback: editorNode => moveCaret(editorNode, 0)
     },
     {
+      title: `Within "A"`,
+      callback: editorNode => moveCaret(editorNode.firstChild, 0)
+    },
+    {
+      title: `Select "A"`,
+      callback: editorNode => moveCaret(editorNode, 0, editorNode, 1)
+    },
+    {
       title: `Before Control`,
       callback: editorNode => moveCaret(editorNode, 1)
     },
@@ -363,12 +373,12 @@ createTestCase(
       callback: editorNode => moveCaret(editorNode, 1, editorNode, 2)
     },
     {
-      title: `Within "A"`,
-      callback: editorNode => moveCaret(editorNode.firstChild, 0)
+      title: `Before "<br/>"`,
+      callback: editorNode => moveCaret(editorNode, 2)
     },
     {
-      title: `Select "A"`,
-      callback: editorNode => moveCaret(editorNode, 0, editorNode, 1)
+      title: `After "<br/>"`,
+      callback: editorNode => moveCaret(editorNode, 3)
     },
     {
       title: `Select "<br/>"`,
